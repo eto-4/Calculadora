@@ -46,6 +46,11 @@ const keys = [
 // Functions
 
 // Creació de botons
-function crearBoto() {
-    
+function crearBoto({label, value, type}) {
+    const opButton = document.createElement("div");
+    opButton.label = label;
+    opButton.value = value;
+    opButton.type = type;
+
+    opButton.classlist = key 
 }

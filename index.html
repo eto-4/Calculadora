@@ -4,13 +4,22 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CalculadorAM</title>
+
+        <link rel="stylesheet" href="assets/css/style.css">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     </head>
     <body>
-        <div class="title">CalculadorAM</div>
+        <div class="sidebar">
+            <div class="title">NeoCalc</div>
+        </div>
         <div class="calcArea">
             <div class="calculadora">
-                <div id="display">
+                <div id="display" class="display">
                     <!-- display area of numbers -->
+                    <p id="displayingNbs"></p>
                 </div>
                 <div id="keys" class="keys">
                     <!-- Keys area -->
@@ -18,5 +27,6 @@
             </div>
         </div>
         <div class="infoArea"></div>
+        <script src="assets/js/main.js"></script>
     </body>
 </html>

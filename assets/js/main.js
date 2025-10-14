@@ -2,10 +2,10 @@
 // Layout
 const keyLayout = [
     ['MR','M+','M-','%'],
-    ['7','8','9','/'],
-    ['4','5','6','*'],
-    ['1','2','3','-'],
-    ['0','.','=', '+']
+    ['7','8','9','×'],
+    ['4','5','6','-'],
+    ['1','2','3','+'],
+    ['+/-','0','.', '=']
 ];
 
 
@@ -43,14 +43,78 @@ const keys = [
     {label: '=', value: 'result', type: 'func'},
 ];
 
+// Constants
+
+const KeyContainer = document.getElementById("keys");
+const DisplayNumber = document.getElementById("display");
+
 // Functions
 
 // Creació de botons
-function crearBoto({label, value, type}) {
-    const opButton = document.createElement("div");
-    opButton.label = label;
-    opButton.value = value;
-    opButton.type = type;
+function crearBoto(obj) {
 
-    opButton.classlist = key 
+    const opButton = document.createElement("div");
+    const label = opButton.dataset.label = obj.label;
+    const value = opButton.dataset.value = obj.value;
+    const type = opButton.dataset.type = obj.type;
+    opButton.textContent = label;
+
+    opButton.classList.add('key', type);
+
+    opButton.addEventListener("click", () => buttonAction(value, type));
+    
+    // opButton.addEventListener("click", () => {
+    //     console.log(value);
+    //     console.log(type);
+    // });
+
+
+    return opButton;    
 }
+
+function buttonAction(value, type) {
+    switch(type) {
+        case 'num': agregarNumero(value); break;
+        case 'op': agregarOperacio(value); break;
+        case 'func': executarFuncio(value); break;
+    }
+}
+
+// Valor guardat en la memoria.
+const memory = 0;
+
+const pNumero = "";
+const operacio = "";
+const sNumero = "";
+
+
+function agregarNumero(value) {
+    display = document.getElementById("displayingNbs");
+
+    display.textContent += value;
+}
+
+function agregarOperacio(value) {
+
+}
+
+function executarFuncio(value) {
+
+}
+
+keyLayout.forEach(key => {
+    key.forEach(keyV => {
+
+        console.log(keyV);
+        keys.forEach(keyN => {
+        
+            if (keyV === keyN["label"]) {
+        
+                console.log(keyN);
+        
+                const btnOption = crearBoto(keyN);
+                KeyContainer.appendChild(btnOption);
+            };
+        });
+    });
+});

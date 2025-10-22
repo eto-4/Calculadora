@@ -261,4 +261,60 @@ function updateDisplay() {
     DisplayNumber.textContent = userInputView || '0';
 }
 
+// Memory Display
+const pin = document.getElementById("memoPin");
+pin.addEventListener("click", showMemoryBanner);
+
+// Memory Display Tab
+const memoryDisplay = document.querySelector(".memoryDisplay");
+
+// Memory Display Pin
+const memoryPin = document.querySelector(".memoPin");
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function showMemoryBanner() {
+
+    if (memoryDisplay.classList.contains("dissappear")) {
+
+        // Posició inicial
+        memoryDisplay.style.transform = "translateX(-100%)";
+        
+        // Falla al fer slide  <-----------------------------------------------------------:: Error
+        memoryPin.style.transform = "translateX(-22vw)";
+
+        memoryDisplay.classList.remove("dissappear");
+
+        
+        // Forçar que el navegador registri la posició.
+        memoryDisplay.offsetHeight;
+        memoryPin.offsetHeight;
+
+        // Slide In
+        memoryDisplay.style.transform = "translateX(0)";
+        memoryPin.style.transform = "translateX(0)";
+
+        // Esperar a que acabi l'animació
+        await sleep(800);
+
+        console.log("Pantalla de Memoria Mostrant-se!");
+
+    } else {
+
+        // Slide Out
+        memoryDisplay.style.transform = "translateX(-100%)";
+        memoryPin.style.transform = "translateX(-22vw)";
+
+        // Esperar a que acabi l'animació
+        await sleep(1000);
+        
+        memoryDisplay.classList.add("dissappear");
+        await sleep(200);
+        memoryPin.style.transform = "translateX(0)";
+        console.log("Pantalla de Memoria Amagada!");
+    }
+}
+
 updateDisplay();

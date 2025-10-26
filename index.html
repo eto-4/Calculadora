@@ -13,9 +13,10 @@
     </head>
     <body>
         <div class="sidebar">
-            <div class="title">NeoCalc</div>
+            <div class="title"><u>AM.Calc</u></div>
         </div>
         <div class="calcArea">
+            <div class="memoPin" id="memoPin">Historial/Memoria</div>
             <div class="calculadora">
                 <div id="display" class="display">
                     <!-- display area of numbers -->
@@ -27,11 +28,10 @@
                 </div>
             </div>
             <div class="memoryDisplay dissappear">
-                <div class="slashTab">Historial</div>
-                <div class="slashTab">Memoria</div>
-                <div class="content">Encara no hi ha historial.</div>
+                <div class="slashTab" id="windowSelectedHis">Historial</div>
+                <div class="slashTab" id="windowSelectedMem">Memoria</div>
+                <div class="content" id="content">Encara no hi ha historial.</div>
             </div>
-            <div class="memoPin" id="memoPin">M</div>
         </div>
         <div class="infoArea"></div>
         <script src="assets/js/main.js"></script>

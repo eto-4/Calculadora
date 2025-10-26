@@ -1,5 +1,21 @@
+/*****************************************************
+ * CALCULADORA JAVASCRIPT
+ * Índex de Funcions:
+ * 1. crearBoto ---------------------- Creació de botons
+ * 2. buttonAction ------------------- Gestió de clics
+ * 3. agregarNumero ------------------ Afegir numeros
+ * 4. agregarOperacio ---------------- Afegir operació
+ * 5. returnResult ------------------- Calcula resultat
+ * 6. updateDisplay ------------------ Actualitza pantalla
+ * 7. sleep -------------------------- Funció utilitat per esperar
+ * 8. showMemoryBanner --------------- Mostra / amaga la memòria
+ * 9. memoryTabManagement ------------ Gestiona historial / memòria
+ * 10. executarFuncio ---------------- Executa funcions especials (=, MR, M+, M-, etc)
+ *****************************************************/
 
-// Layout
+/***************
+ * LAYOUT DE TECLAT
+ ***************/
 const keyLayout = [
     ['MR','M+','M-','%'],
     ['7','8','9','×'],
@@ -8,23 +24,23 @@ const keyLayout = [
     ['+/-','0','.', '=']
 ];
 
-
-// Funcionalitats
+/***********************
+ * DEFINICIÓ DE TECLAS
+ ***********************/
 const keys = [
-
-    // --- Funcions de memòria ---
+    // Memòria
     {label: 'MC', value: 'MC', type: 'func'},
     {label: 'MR', value: 'MR', type: 'func'},
     {label: 'M+', value: 'M+', type: 'func'},
     {label: 'M-', value: 'M-', type: 'func'},
 
-    // --- Operadors bàsics ---
+    // Operadors
     {label: '%', value: '/', type: 'op'},
     {label: '×', value: '*', type: 'op'},
     {label: '-', value: '-', type: 'op'},
     {label: '+', value: '+', type: 'op'},
 
-    // --- Números ---
+    // Nombres
     {label: '7', value: '7', type: 'num'},
     {label: '8', value: '8', type: 'num'},
     {label: '9', value: '9', type: 'num'},
@@ -36,46 +52,52 @@ const keys = [
     {label: '3', value: '3', type: 'num'},
     {label: '0', value: '0', type: 'num'},
 
-    // --- Funcions Adicionals ---
+    // Funcions Addicionals
     {label: '+/-', value: '+/-', type: 'func'},
     {label: '.', value: '.', type: 'func'},
     {label: '=', value: '=', type: 'func'},
 ];
 
-// Constants
+/***********************
+ * CONSTANTS DE DOM
+ ***********************/
 const KeyContainer = document.getElementById("keys");
 const DisplayLastOp = document.getElementById("lastOP");
 const DisplayNumber = document.getElementById("displayingNbs");
 
-// Functions
+/***********************
+ * VARIABLES GLOBALS
+ ***********************/
+let memory = 0;                  // Valor guardat en memòria
+let pNumero = null;              // Primer número de l'operació
+let operacio = null;             // Operador actual
+let sNumero = null;              // Segon número
+let resultat = null;             // Resultat de la operació
+let segonNumero = false;          // Flag si estem introduint segon número
+let inputNumbers = '';            // Número introduït actual
+let userInputView = '';           // String que es mostra a la pantalla
+let historialOperacions = [];     // Array historial de calculs
+let pestañaActual = 'historial'; // Pestanya actual de memòria/historial
 
-// Creació de botons
+/********************************************
+ * 1. CREACIÓ DE BOTONS
+ ********************************************/
 function crearBoto(obj) {
-
     const opButton = document.createElement("div");
     const label = opButton.dataset.label = obj.label;
     const value = opButton.dataset.value = obj.value;
     const type = opButton.dataset.type = obj.type;
     opButton.textContent = label;
-
     opButton.classList.add('key', type);
-
     opButton.addEventListener("click", () => buttonAction(value, type));
-
     return opButton;    
 }
 
-// Creació de Botons amb forEach
+// Afegir botons al DOM segons keyLayout
 keyLayout.forEach(key => {
     key.forEach(keyV => {
-
-        console.log(keyV);
         keys.forEach(keyN => {
-        
             if (keyV === keyN["label"]) {
-        
-                console.log(keyN);
-        
                 const btnOption = crearBoto(keyN);
                 KeyContainer.appendChild(btnOption);
             };
@@ -83,7 +105,9 @@ keyLayout.forEach(key => {
     });
 });
 
-// Llogica
+/********************************************
+ * 2. GESTIÓ DE CLICS DE BOTONS
+ ********************************************/
 function buttonAction(value, type) {
     switch(type) {
         case 'num': agregarNumero(value); break;
@@ -92,156 +116,72 @@ function buttonAction(value, type) {
     }
 }
 
-// Valor guardat en la memoria.
-let memory = 0;
-
-// Variables necessaries per el calcul:
-let pNumero = null;
-let operacio = null;
-let sNumero = null;
-let resultat = null;
-let segonNumero = false;
-
-// Variable per cada numero de la operació
-let inputNumbers = '';
-
-// Numero / Operació que es mostra per pantalla.
-let userInputView = '';
-
+/********************************************
+ * 3. AFEGIR NUMEROS
+ ********************************************/
 function agregarNumero(value) {
-    /*** 
-     * Afegint els numeros a les segúents variables:
-     *  InputNumbers & UserInputView
-     * També s'en carrega de la assignació del valor de SegonNumero.
+    /***
+     * Afegim numeros a inputNumbers i userInputView
+     * Actualitza sNumero si estem introduint segon número
     */
     if (segonNumero && inputNumbers === '') {
         inputNumbers = value;
         userInputView = DisplayNumber.textContent + value;
-
     } else if (resultat !== null && !segonNumero) {
         inputNumbers = value;
         userInputView = value;
-
     } else {
         inputNumbers += value;
         userInputView += value;
     }
-    
-    if (segonNumero) {
-        sNumero = parseFloat(inputNumbers);
-    }
+
+    if (segonNumero) sNumero = parseFloat(inputNumbers);
 
     updateDisplay();
 }
 
+/********************************************
+ * 4. AFEGIR OPERACIÓ
+ ********************************************/
 function agregarOperacio(value) {
     /***
-     * Agregar la operació a la variable: {operació} i assignarli el valor del label per el UserInputView
-     * Nateja InputNumbers per començar a introduïr numeros a sNumero. i nateja sNumero per si fem més d'una equació
-    */
+     * Assigna l'operador i prepara variables per segon número
+     */
+    if (inputNumbers === '' && resultat === null) return;
 
-    if (inputNumbers === '') return;
-    
-    if (pNumero === null) {
+    if (!segonNumero) {
         pNumero = parseFloat(inputNumbers);
-    } else if (segonNumero && sNumero !== null) {
+    } else if (segonNumero && inputNumbers !== '') {
+        sNumero = parseFloat(inputNumbers);
         resultat = returnResult(pNumero, operacio, sNumero);
         pNumero = resultat;
-        
+
         const opAnterior = keys.find(key => key.value === operacio && key.type === 'op');
         DisplayLastOp.textContent = `${pNumero} ${opAnterior ? opAnterior.label : operacio} ${sNumero} =`;
     }
-    
+
     operacio = value;
     segonNumero = true;
-    
+
     const nuevaOp = keys.find(key => key.value === value && key.type === 'op');
     const simboloOp = nuevaOp ? nuevaOp.label : value;
-    
-    if (resultat !== null) {
-        userInputView = resultat + simboloOp;
-        resultat = null;
-    } else {
-        userInputView = pNumero + simboloOp;
-    }
-    
+
+    userInputView = (inputNumbers !== '' ? inputNumbers : pNumero) + simboloOp;
+
     inputNumbers = '';
     sNumero = null;
+    resultat = null;
+
     updateDisplay();
 }
 
-function executarFuncio(value) {
-    /***
-     * S'encarrega de gestionar els tipus de operacions/funcions que l'usuari vulgui executar.
-     */
-
-    switch (value) {
-        case '=': 
-            if (pNumero !== null && operacio !== null && inputNumbers !== '') {
-                sNumero = parseFloat(inputNumbers);
-                resultat = returnResult(pNumero, operacio, sNumero);
-                
-                const opObj = keys.find(key => key.value === operacio && key.type === 'op');
-                const simboloOp = opObj ? opObj.label : operacio;
-                
-                DisplayLastOp.textContent = `${pNumero} ${simboloOp} ${sNumero} =`;
-                
-                userInputView = resultat.toString();
-                pNumero = resultat;
-                inputNumbers = resultat.toString();
-                segonNumero = false;
-                operacio = null;
-                sNumero = null;
-            }
-            break;
-            
-        case '.': 
-            if (!inputNumbers.includes('.')) {
-                if (inputNumbers === '') {
-                    inputNumbers = '0.';
-                    userInputView = userInputView === '0' ? '0.' : userInputView + '0.';
-                } else {
-                    inputNumbers += '.';
-                    userInputView += '.';
-                }
-            }
-            break;
-            
-        case '+/-':
-            if (inputNumbers !== '' && inputNumbers !== '0') {
-                inputNumbers = (-parseFloat(inputNumbers)).toString();
-                userInputView = inputNumbers;
-            }
-            break;
-            
-        case 'MC': 
-            memory = 0;
-            break;
-        case 'MR': 
-            if (memory !== 0) {
-                inputNumbers = memory.toString();
-                userInputView = inputNumbers;
-            }
-            break;
-        case 'M+': 
-            if (inputNumbers !== '') {
-                memory += parseFloat(inputNumbers);
-            }
-            break;
-        case 'M-': 
-            if (inputNumbers !== '') {
-                memory -= parseFloat(inputNumbers);
-            }
-            break;
-    }
-    updateDisplay();
-}
-
+/********************************************
+ * 5. CALCULA RESULTAT
+ ********************************************/
 function returnResult(pNumero, operacio, sNumero) {
     /***
-     * Calcula I retorna el resultat de la operació.
+     * Retorna el resultat de pNumero operacio sNumero
      */
-
     const pN = parseFloat(pNumero);
     const sN = parseFloat(sNumero);
     
@@ -254,67 +194,209 @@ function returnResult(pNumero, operacio, sNumero) {
     }
 }
 
+/********************************************
+ * 6. ACTUALITZA PANTALLA
+ ********************************************/
 function updateDisplay() {
     /***
-     * Actualitza la vista de la calculadora (id=displayingNum).
+     * Mostra userInputView a la pantalla
      */
     DisplayNumber.textContent = userInputView || '0';
 }
 
-// Memory Display
-const pin = document.getElementById("memoPin");
-pin.addEventListener("click", showMemoryBanner);
-
-// Memory Display Tab
-const memoryDisplay = document.querySelector(".memoryDisplay");
-
-// Memory Display Pin
-const memoryPin = document.querySelector(".memoPin");
-
+/********************************************
+ * 7. UTILITAT PER ESPERAR
+ ********************************************/
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/********************************************
+ * 8. MOSTRA / AMAGA MEMÒRIA AMB ANIMACIÓ
+ ********************************************/
+const pin = document.getElementById("memoPin");
+const memoryDisplay = document.querySelector(".memoryDisplay");
+const memoryPin = document.querySelector(".memoPin");
+
+memoryDisplay.style.transition = "transform 0.5s ease, opacity 0.5s ease";
+memoryPin.style.transition = "transform 0.5s ease";
+
+let memoryVisible = false;
+
+pin.addEventListener("click", showMemoryBanner);
+
 async function showMemoryBanner() {
+    if (!memoryVisible) {
+        // Mostrar
+        memoryDisplay.style.display = "grid"; 
+        await new Promise(r => requestAnimationFrame(r)); // garantir render inicial
 
-    if (memoryDisplay.classList.contains("dissappear")) {
-
-        // Posició inicial
-        memoryDisplay.style.transform = "translateX(-100%)";
-        
-        // Falla al fer slide  <-----------------------------------------------------------:: Error
-        memoryPin.style.transform = "translateX(-22vw)";
-
-        memoryDisplay.classList.remove("dissappear");
-
-        
-        // Forçar que el navegador registri la posició.
-        memoryDisplay.offsetHeight;
-        memoryPin.offsetHeight;
-
-        // Slide In
         memoryDisplay.style.transform = "translateX(0)";
-        memoryPin.style.transform = "translateX(0)";
+        memoryDisplay.style.opacity = "1";
+        memoryDisplay.style.pointerEvents = "auto";
 
-        // Esperar a que acabi l'animació
-        await sleep(800);
-
-        console.log("Pantalla de Memoria Mostrant-se!");
-
-    } else {
-
-        // Slide Out
-        memoryDisplay.style.transform = "translateX(-100%)";
-        memoryPin.style.transform = "translateX(-22vw)";
-
-        // Esperar a que acabi l'animació
-        await sleep(1000);
+        memoryPin.style.transform = "translateY(-20vh)";
         
-        memoryDisplay.classList.add("dissappear");
-        await sleep(200);
+        await new Promise(r => setTimeout(r, 500)); // esperar transició
+
         memoryPin.style.transform = "translateX(0)";
-        console.log("Pantalla de Memoria Amagada!");
+        memoryVisible = true;
+    } else {
+        // Amagar
+        memoryDisplay.style.transform = "translateX(-100%)";
+        memoryDisplay.style.opacity = "0";
+        memoryDisplay.style.pointerEvents = "none";
+
+        memoryPin.style.transform = "translateY(-20vh)";
+
+        await new Promise(r => setTimeout(r, 500)); // esperar transició
+        memoryDisplay.style.display = "none";
+        memoryPin.style.transform = "translateX(0)";
+        memoryVisible = false;
     }
 }
 
+/********************************************
+ * 9. GESTIÓ HISTORIAL / MEMÒRIA
+ ********************************************/
+function memoryTabManagement() {
+    const historialTab = document.getElementById("windowSelectedHis");
+    const memoriaTab = document.getElementById("windowSelectedMem");
+    const content = document.querySelector(".memoryDisplay .content");
+
+    function renderContent() {
+        content.innerHTML = '';
+        if (pestañaActual === 'historial') {
+            if (historialOperacions.length === 0) {
+                content.textContent = 'Encara no hi ha historial.';
+                return;
+            }
+            historialOperacions.forEach(op => {
+                const opDiv = document.createElement('div');
+                opDiv.classList.add('historialItem');
+
+                const operacioDiv = document.createElement('div');
+                operacioDiv.classList.add('operacio');
+                operacioDiv.textContent = op.operacio;
+
+                const resultatDiv = document.createElement('div');
+                resultatDiv.classList.add('resultat');
+                resultatDiv.textContent = op.resultat;
+
+                opDiv.appendChild(operacioDiv);
+                opDiv.appendChild(resultatDiv);
+                content.appendChild(opDiv);
+            });
+        } else {
+            const memDiv = document.createElement('div');
+            memDiv.classList.add('memoryItem');
+
+            const valorDiv = document.createElement('div');
+            valorDiv.classList.add('memoryValue');
+            valorDiv.textContent = memory;
+
+            const botonesDiv = document.createElement('div');
+            botonesDiv.classList.add('memoryButtons');
+
+            ['MC','M+','M-'].forEach(func => {
+                const btn = document.createElement('div');
+                btn.classList.add('memoryBtn');
+                btn.textContent = func;
+                btn.addEventListener('click', () => executarFuncio(func));
+                botonesDiv.appendChild(btn);
+            });
+
+            memDiv.appendChild(valorDiv);
+            memDiv.appendChild(botonesDiv);
+            content.appendChild(memDiv);
+        }
+
+        historialTab.classList.toggle('selected', pestañaActual === 'historial');
+        memoriaTab.classList.toggle('selected', pestañaActual === 'memoria');
+    }
+
+    historialTab.addEventListener('click', () => {
+        pestañaActual = 'historial';
+        renderContent();
+    });
+
+    memoriaTab.addEventListener('click', () => {
+        pestañaActual = 'memoria';
+        renderContent();
+    });
+
+    renderContent();
+    return renderContent;
+}
+
+const updateMemoryDisplay = memoryTabManagement();
+
+/********************************************
+ * 10. EXECUTA FUNCIONS (=, MR, M+, M-, etc)
+ ********************************************/
+function executarFuncio(value) {
+    switch (value) {
+        case '=':
+            if (pNumero !== null && operacio !== null && inputNumbers !== '') {
+                sNumero = parseFloat(inputNumbers);
+                resultat = returnResult(pNumero, operacio, sNumero);
+
+                const opObj = keys.find(k => k.value === operacio && k.type === 'op');
+                const simboloOp = opObj ? opObj.label : operacio;
+
+                DisplayLastOp.textContent = `${pNumero} ${simboloOp} ${sNumero} =`;
+
+                historialOperacions.push({
+                    operacio: `${pNumero} ${simboloOp} ${sNumero} =`,
+                    resultat: resultat
+                });
+
+                userInputView = resultat.toString();
+                pNumero = resultat;
+                inputNumbers = resultat.toString();
+                segonNumero = false;
+                operacio = null;
+                sNumero = null;
+            }
+            break;
+
+        case '.':
+            if (!inputNumbers.includes('.')) {
+                inputNumbers = inputNumbers === '' ? '0.' : inputNumbers + '.';
+                userInputView = inputNumbers;
+            }
+            break;
+
+        case '+/-':
+            if (inputNumbers !== '' && inputNumbers !== '0') {
+                inputNumbers = (-parseFloat(inputNumbers)).toString();
+                userInputView = inputNumbers;
+            }
+            break;
+
+        case 'MC':
+            memory = 0; break;
+
+        case 'MR':
+            if (memory !== 0) {
+                inputNumbers = memory.toString();
+                userInputView = inputNumbers;
+                if (!segonNumero) pNumero = memory;
+                if (segonNumero) sNumero = memory;
+            }
+            break;
+
+        case 'M+':
+            if (inputNumbers !== '') memory += parseFloat(inputNumbers);
+            break;
+        case 'M-':
+            if (inputNumbers !== '') memory -= parseFloat(inputNumbers);
+            break;
+    }
+
+    updateMemoryDisplay();
+    updateDisplay();
+}
+
+updateMemoryDisplay();
 updateDisplay();

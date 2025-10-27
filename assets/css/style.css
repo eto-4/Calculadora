@@ -26,8 +26,10 @@ body {
     box-shadow: 2px 0 10px rgba(0,0,0,0.5); /* Ombra lateral */
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     min-width: 150px;
-    padding-top: 2vw;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
     width: 15vw;
 }
 
@@ -35,8 +37,22 @@ body {
     color: #fff;
     font-size: 2.5vw;
     font-weight: bold;
-    margin-bottom: 3vw;
+    width: 0 auto;
     text-align: center;
+}
+
+.contador {
+    padding: 10px;
+    border: 2px solid black;
+    background-color: #302e2e;
+    margin: 0 auto;
+}
+
+.temps {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    color: white;
 }
 
 /* -------------------------------------------------
@@ -57,13 +73,16 @@ body {
     box-shadow: 0 0.5vw 1.5vw rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
-    gap: 2vw;
+    gap: 1vw;
     max-width: 400px;
-    min-width: 250px;
+    min-width: 300px;
     padding: 2vw;
     transition: all 0.4s ease;
     width: 35vw;
+    height: fit-content;
+    width: fit-content;
     z-index: 100;
+
 }
 
 /* Pantalla de resultats */
@@ -110,7 +129,7 @@ body {
 ------------------------------------------------- */
 .keys {
     display: grid;
-    gap: 1.2vw;
+    gap: 0.7vw;
     grid-template-columns: repeat(4, 1fr);
     padding: 10px;
 }

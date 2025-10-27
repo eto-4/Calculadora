@@ -11,6 +11,7 @@
  * 8. showMemoryBanner --------------- Mostra / amaga la memòria
  * 9. memoryTabManagement ------------ Gestiona historial / memòria
  * 10. executarFuncio ---------------- Executa funcions especials (=, MR, M+, M-, etc)
+ * 11. actualitzarContador ----------- Actualitza el rellotge del temps total
  *****************************************************/
 
 /***************
@@ -398,5 +399,91 @@ function executarFuncio(value) {
     updateDisplay();
 }
 
+/********************************************
+ * 11. ACTUALITZAR RELLOTGE
+ ********************************************/
+function actualitzarContador() {
+    const hora = document.getElementById("hora");
+    const minut = document.getElementById("minut");
+    const segon = document.getElementById("segon");
+
+    let nHora = Number(hora.textContent);
+    let nMinut = Number(minut.textContent);
+    let nSegon = Number(segon.textContent);
+
+    nSegon += 1;
+
+    if (nSegon === 60) {
+        nSegon = 0;
+        nMinut += 1;
+    } 
+    if (nMinut === 60) {
+        nMinut = 0;
+        nHora += 1;
+    }
+    if (nHora === 24) {
+        nHora = 0;
+    }
+
+    // Mostrar dos digits
+    hora.textContent = String(nHora).padStart(2, '0');
+    minut.textContent = String(nMinut).padStart(2, '0');
+    segon.textContent = String(nSegon).padStart(2, '0');
+}
+
+
+/********************************************
+ * DETECCIÓ DE TECLES.
+ ********************************************/
+document.addEventListener('keydown', (event) => {
+    const key = event.key;
+
+    // --- Números ---
+    if (!isNaN(key) && key !== ' ') { // detecta 0-9
+        agregarNumero(key);
+        return;
+    }
+
+    // --- Operacions ---
+    if (['+', '-', '*', '/'].includes(key)) {
+        agregarOperacio(key);
+        return;
+    }
+
+    // --- Funcions especials ---
+    switch (key) {
+        case 'Enter':
+        case '=':
+            event.preventDefault();
+            executarFuncio('=');
+            break;
+
+        case '.':
+            executarFuncio('.');
+            break;
+
+        case 'm': //MR
+        case 'M':
+            executarFuncio('MR');
+            break;
+
+        case 'c': // C (clear de memory) 
+        case 'C':
+            executarFuncio('MC');
+            break;
+
+        case 'n': // canviar signe (+/-)
+        case 'N':
+            executarFuncio('+/-');
+            break;
+
+        default:
+            // Altres tecles
+            break;
+    }
+});
+
+// Actualitzar funcions només obrir la pàgina.
+setInterval(actualitzarContador, 1000);
 updateMemoryDisplay();
 updateDisplay();
